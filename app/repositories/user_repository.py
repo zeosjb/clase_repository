@@ -1,27 +1,22 @@
-from fastapi import HTTPException
+"""Operaciones de persistencia relacionadas con usuarios."""
+
+from sqlalchemy.orm import Session
 
 from app.models.user import User
 
 
-class UserService:
+class UserRepository:
+    """Aisla las consultas SQLAlchemy del resto de la aplicacion."""
 
-    def __init__(self, repository):
-        self.repository = repository
+    def __init__(self, db: Session):
+        self.db = db
 
-    def get_all(self):
+    def get_all(self) -> list[User]:
+        """Obtiene todos los usuarios."""
 
-        return self.repository.get_all()
+        return self.db.query(User).all()
 
-    def get_by_id(self, user_id: int):
+    def get_by_id(self, user_id: int) -> User | None:
+        """Obtiene un usuario por su clave primaria."""
 
-        user = self.repository.get_by_id(
-            user_id
-        )
-
-        if not user:
-            raise HTTPException(
-                status_code=404,
-                detail="Usuario no encontrado"
-            )
-
-        return user
+        return self.db.get(User, user_id)
